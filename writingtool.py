@@ -14,6 +14,7 @@ import base64 # Encode/decode images
 import torch
 from PIL import Image # Image processing
 import io
+import os
 import re # Regular expression for text processing
 import pdfplumber # Extract text and tables from PDF
 import fitz # PyMuPDF for image extraction
