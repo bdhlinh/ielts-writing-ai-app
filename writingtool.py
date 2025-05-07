@@ -272,10 +272,18 @@ def get_corrected_writing_prompt(writing_input_text, validated_band):
     
     # Generate Improved Writing Prompt Structure
     prompt = (
-        f"You are an experienced IELTS writing teacher. Please revise the following essay so that it meets the requirements of a Band {validated_band}\n"
-        "Keep the original meaning and ideas, but improve the vocabulary, grammar, and structure. Do not provide scores, explanations, or feedback.\n\n"
-        f"{validated_band} without any grading or comments while maintaining the original meaning:\n\n{writing_input_text}\n"
-    )   
+        f"You are a certified IELTS writing instructor. Your task is to revise the following essay to meet the standards of Band {validated_band} in the IELTS Writing Task 2.\n\n"
+        "Make the following improvements:\n"
+        f"- Enhance the vocabulary to match the lexical level of Band {validated_band}.\n"
+        "- Improve grammar range and accuracy without changing the meaning.\n"
+        "- Refine coherence and cohesion by using logical connectors and better structure.\n"
+        "- Ensure task response is clear and fully developed.\n\n"
+        "Important instructions:\n"
+        "- Keep the original ideas and meaning.\n"
+        "- Do NOT include any comments, scores, or explanations.\n"
+        "- Provide only the improved version of the essay.\n\n"
+        f"Essay:\n{writing_input_text}"
+    )
     return prompt
 
 def main():
@@ -391,10 +399,14 @@ def main():
     elif input_method == "PDF":
         writing_pdf = st.file_uploader("Upload your essay here and click on 'Grading'", accept_multiple_files=True)
         if writing_pdf:
-            writing_text, _, _ = get_pdf_text(writing_pdf, task_type="Task 2")
+            writing_text, _, _ = get_pdf_text(writing_pdf, task_type=task_type)
             writing_input_text = writing_text
             st.session_state.writing_input_text = writing_input_text  # Lưu vào session để dùng lại ở bước Improved Essay
 
+            # Cảnh báo nếu PDF không chứa văn bản hợp lệ
+            if not writing_input_text or len(writing_input_text.strip()) < 50:
+                st.warning("⚠️ PDF may not contain valid text. Please upload a typed essay.")
+                
     # Button for evaluating writing
     if st.button("Evaluate Writing"):
         with st.spinner("Processing"):
@@ -417,20 +429,6 @@ def main():
 
             if not text_chunks:
                 st.error("No valid content found in your essay. Please provide a valid input.")
-                return
-
-            # Create vector store
-            vectorstore = get_vector_store(text_chunks)
-
-            if not vectorstore:
-                st.error("Failed to create vectorstore for the essay content.")
-                return
-
-            # Get conversation chain
-            st.session_state.conversation = get_conversation_chain(vectorstore)
-
-            if not st.session_state.conversation:
-                st.error("Failed to initialize conversation chain.")
                 return
 
             # Generate grading prompt
@@ -522,4 +520,3 @@ def main():
 if __name__ == "__main__":
     # Initialize LLM and embeddings
     main()
-
