@@ -17,12 +17,10 @@ import io
 import re # Regular expression for text processing
 import pdfplumber # Extract text and tables from PDF
 import fitz # PyMuPDF for image extraction
-import os
 import tempfile # Temporary file storage
 
 # Check for GPU availability and set the appropriate device for computation.
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
